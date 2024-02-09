@@ -1,5 +1,6 @@
 ﻿using System;
 
+[Serializable]
 public abstract class AbstractDataFile
 {
     [NonSerialized] protected string file_name = "";
@@ -10,4 +11,8 @@ public abstract class AbstractDataFile
     }
 
     public abstract string GetFileExtension();
+    public virtual string GetFilePathAddition()
+    {
+        return "/";
+    }
 }

@@ -2,7 +2,7 @@
 using UnityEngine;
 
 [Serializable]
-public class ProgramData : AbstractDataFile, INamedDefault<ProgramData>
+public class ProgramData : AbstractDataFile, INamedDefault<ProgramData>, IFileSaveLoad
 {
     //More serialzied stuff goes here
     [SerializeField] public int example_program_setting;
@@ -14,6 +14,17 @@ public class ProgramData : AbstractDataFile, INamedDefault<ProgramData>
         data.example_program_setting = -1;
 
         return data;
+    }
+    public void Save()
+    {
+    }
+
+    public void Load()
+    {
+    }
+
+    public void postLoad()
+    {
     }
 
     public ProgramData()

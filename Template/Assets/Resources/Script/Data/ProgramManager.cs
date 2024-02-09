@@ -23,6 +23,7 @@ public class ProgramManager : MonoBehaviour
         Debug.Log(data.example_program_setting);
         data.example_program_setting = 42;
 
+        data.postLoad();
         Instantiate<GameObject>(Resources.Load<GameObject>("Prefab/Management/GameManager"));
     }
 

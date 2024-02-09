@@ -29,6 +29,8 @@ public class GameManager : MonoBehaviour
         data = SaveLoadHelper<SaveData>.Load("test_save");
         Debug.Log(data.test_data);
         data.test_data = 42;
+
+        data.postLoad();
     }
 
     public void Cleanup()
