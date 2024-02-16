@@ -1,15 +1,14 @@
 ﻿using System;
 
 [Serializable]
-public abstract class AbstractDataFile
+public abstract class VersionedDataFile : IFileType
 {
-    [NonSerialized] protected string file_name = "";
+    protected string file_name = "";
 
     public string GetFileName()
     {
         return file_name;
     }
-
     public abstract string GetFileExtension();
     public virtual string GetFilePathAddition()
     {

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Playables;
 
-public static class SaveLoadHelper<T> where T : AbstractDataFile, INamedDefault<T>, IFileSaveLoad, new()
+public static class SaveLoadHelper<T> where T : VersionedDataFile, INamedDefault<T>, IFileSaveLoad, new()
 {
     public static T New(string file_name = "default", bool overwrite = false)
     {

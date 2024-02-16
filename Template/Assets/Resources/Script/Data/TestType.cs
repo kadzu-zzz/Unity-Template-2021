@@ -5,31 +5,29 @@ using System.Text;
 using UnityEngine;
 
 [Serializable]
-public class TestType : ISaveLoad<TestType, SaveData>
+public class TestType : ISaveLoad<TestType, SaveDataV1>
 {
 
     [SerializeField] public int test_data;
 
     public TestType Default()
     {
-        TestType def = new();
+        test_data = 42;
 
-        def.test_data = 42;
-
-        return def;
+        return this;
     }
 
-    public void Load(SaveData data)
+    public void Load(SaveDataV1 data)
     {
         data.test_type = this;
     }
 
-    public void postLoad(SaveData data)
+    public void postLoad(SaveDataV1 data)
     {
         Debug.Log(data.test_type.test_data);
     }
 
-    public void Save(SaveData data)
+    public void Save(SaveDataV1 data)
     {
         test_data = data.test_type.test_data;
     }

@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
@@ -10,7 +11,9 @@ public class GameManager : MonoBehaviour
     }
     static GameManager instance = null;
 
-    public SaveData data;
+    public SaveDataV1 data;
+
+    public static ConcreteObject concrete;
 
     private void Awake()
     {
@@ -26,16 +29,20 @@ public class GameManager : MonoBehaviour
     public void OnStart()
     {
         ProgramManager.Instance().GameStarted();
-        data = SaveLoadHelper<SaveData>.Load("test_save");
+
+        data = SaveLoadHelper<SaveDataV1>.Load("test_save");
         Debug.Log(data.test_data);
         data.test_data = 42;
 
         data.postLoad();
+
+        SceneManager.sceneUnloaded += SceneUnloading;
+
     }
 
     public void Cleanup()
     {
-        SaveLoadHelper<SaveData>.Save(data);
+        SaveLoadHelper<SaveDataV1>.Save(data);
     }
 
     private void Start()
@@ -43,7 +50,7 @@ public class GameManager : MonoBehaviour
         OnStart();
     }
 
-    private void OnDestroy()
+    private void SceneUnloading(Scene scene)
     {
         Cleanup();
     }

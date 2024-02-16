@@ -2,12 +2,14 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
+using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Xml.Serialization;
 using Unity.VisualScripting;
 using UnityEngine;
 
-public static class FileManager<T> where T : AbstractDataFile, INamedDefault<T>, IFileSaveLoad
+public static class FileManager<T> where T : VersionedDataFile, INamedDefault<T>, IFileSaveLoad, IFileType
 {
     public static void New(ref T fresh_file)
     {
@@ -49,6 +51,40 @@ public static class FileManager<T> where T : AbstractDataFile, INamedDefault<T>,
         file.Close();
     }
 
+    static List<Type> GetFileTree(Type most_derived)
+    {
+        var tree = new List<Type>();
+
+        for (var type = most_derived; type != null && type != typeof(object); type = type.BaseType)
+        {
+            if (type.IsAbstract || type.IsInterface)
+                break;
+            tree.Add(type);
+        }
+
+        return tree;
+    }
+    public static object TryDeserialize(Stream stream, Type targetType)
+    {
+        long originalPosition = stream.Position;
+        IFormatter formatter = new BinaryFormatter();
+        try
+        {
+            object deserialized = formatter.Deserialize(stream);
+            if (targetType.IsInstanceOfType(deserialized))
+            {
+                stream.Position = originalPosition;
+                return deserialized;
+            }
+        }
+        catch (SerializationException e) 
+        {
+            Debug.Log(e);
+        }
+        stream.Position = originalPosition;
+        return null;
+    }
+
     static void Read(ref T data)
     {
         string path = Application.persistentDataPath + data.GetFilePathAddition();
@@ -58,8 +94,50 @@ public static class FileManager<T> where T : AbstractDataFile, INamedDefault<T>,
 
         BinaryFormatter bf = new BinaryFormatter();
         FileStream file = File.Open(file_name, FileMode.Open);
-        data = (T)bf.Deserialize(file);
+
+        List<Type> class_list = GetFileTree(typeof(T));
+        Type serialized_type = null;
+
+        foreach(Type derived in class_list)
+        {
+            serialized_type = derived;
+            var deserialized = TryDeserialize(file, derived);
+            if(deserialized != null)
+            {
+                if(typeof(T) == derived)
+                {
+                    data = (T)deserialized;
+                } 
+                else
+                {
+                    Debug.Log("Upgrading File");
+                    data = (T)UpgradeData(deserialized);
+                }
+                
+                file.Close();
+                return;
+            }
+        }
         file.Close();
+        Debug.Log("Failed to find deserialization.");
+    }
+
+    public static object UpgradeData(object data)
+    {
+        object currentData = data;
+        while (currentData is IFileUpgrader)
+        {
+            MethodInfo upgradeMethod = currentData.GetType().GetMethod("Upgrade", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
+            if (upgradeMethod == null)
+            {
+                break;
+            }
+
+            currentData = upgradeMethod.Invoke(currentData, null);
+        }
+
+        return currentData;
     }
 }
+
 

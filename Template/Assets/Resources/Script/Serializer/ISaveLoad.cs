@@ -1,6 +1,6 @@
 
 //Serialization for Non Monobehaviours.
-public interface ISaveLoad<T, Data> : IDefault<T> where T : ISaveLoad<T, Data> where Data : AbstractDataFile
+public interface ISaveLoad<T, Data> : IDefault<T> where T : ISaveLoad<T, Data> where Data : VersionedDataFile
 {
     public void Save(Data data);
     public void Load(Data data);

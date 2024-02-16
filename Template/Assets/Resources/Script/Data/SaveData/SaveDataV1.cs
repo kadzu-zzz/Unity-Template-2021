@@ -4,26 +4,30 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [Serializable]
-public class SaveData : AbstractDataFile, INamedDefault<SaveData>, IFileSaveLoad
+public class SaveDataV1 : VersionedDataFile, IFileSave, INamedDefault<SaveDataV1>, IFileSaveLoad//, IFileUpgrader
 {
     //More serialzied stuff goes here
     [SerializeField] public int test_data;
 
     [SerializeField] public TestType test_type;
+    [SerializeField] public DataObject test_instantiate;
         
-    public SaveData Default(string input)
+    public SaveDataV1 Default(string input)
     {
-        SaveData data = new(input);
+        file_name = input;
 
-        data.test_data = -1;
-        data.test_type = new TestType().Default();
+        test_data = -1;
+        test_type = new TestType().Default();
 
-        return data;
+        test_instantiate = new DataObject().Default();
+
+        return this;
     }
 
     public void Save()
     {
         test_type.Save(this);
+        test_instantiate.Dematerialize();
     }
 
     public void Load()
@@ -34,10 +38,11 @@ public class SaveData : AbstractDataFile, INamedDefault<SaveData>, IFileSaveLoad
     public void postLoad()
     {
         test_type.postLoad(this);
+        test_instantiate.Materialize(null);
     }
 
-    public SaveData() { }
-    public SaveData(string input)
+    public SaveDataV1() { }
+    public SaveDataV1(string input)
     {
         file_name = input;
     }
@@ -49,5 +54,15 @@ public class SaveData : AbstractDataFile, INamedDefault<SaveData>, IFileSaveLoad
     public override string GetFilePathAddition()
     {
         return "/" + file_name + "/";
+    }
+
+    public int GetTestData()
+    {
+        return test_data;
+    }
+
+    public TestType GetTestType()
+    { 
+        return test_type;
     }
 }

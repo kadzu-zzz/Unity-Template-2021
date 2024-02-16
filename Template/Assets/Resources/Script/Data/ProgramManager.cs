@@ -10,7 +10,7 @@ public class ProgramManager : MonoBehaviour
     }
     static ProgramManager instance = null;
 
-    public ProgramData data;
+    public ProgramDataV2 data;
 
     private void Awake()
     {
@@ -19,7 +19,7 @@ public class ProgramManager : MonoBehaviour
 
     public void OnStart()
     {
-        data = SaveLoadHelper<ProgramData>.Load("");
+        data = SaveLoadHelper<ProgramDataV2>.Load("");
         Debug.Log(data.example_program_setting);
         data.example_program_setting = 42;
 
@@ -29,7 +29,7 @@ public class ProgramManager : MonoBehaviour
 
     public void Cleanup()
     {
-        SaveLoadHelper<ProgramData>.Save(data);
+        SaveLoadHelper<ProgramDataV2>.Save(data);
     }
 
     public void GameStarted()
